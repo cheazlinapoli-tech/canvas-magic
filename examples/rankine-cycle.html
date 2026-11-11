@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Kitaran Rankine (Rankine Cycle)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* light slate */
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Flashcard Styles */
+        .flip-card {
+            background-color: transparent;
+            height: 220px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .flip-card-front {
+            background-color: #ffffff;
+            border: 2px solid #f1f5f9;
+        }
+        .flip-card-front:hover {
+            border-color: #bfdbfe;
+            background-color: #f8fafc;
+        }
+        .flip-card-back {
+            background-color: #eff6ff;
+            border: 2px solid #bfdbfe;
+            transform: rotateY(180deg);
+        }
+
+        /* Certificate Styles */
+        .certificate-container {
+            background: #fff;
+            border: 10px solid #1e3a8a;
+            padding: 2px;
+            position: relative;
+        }
+        .certificate-inner {
+            border: 2px solid #bfdbfe;
+            padding: 2rem;
+            background-image: radial-gradient(#f8fafc 20%, transparent 20%), radial-gradient(#f8fafc 20%, transparent 20%);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-slate-200 py-6 px-4 mb-8">
+        <div class="max-w-3xl mx-auto text-center">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">Basic Rankine Cycle</h1>
+            <p class="text-slate-500 text-sm md:text-base">Interactive Learning Module for Diploma in Mechanical Engineering</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow flex items-start justify-center px-4 pb-12">
+        <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+            
+            <!-- Section: Registration -->
+            <div id="registration-section" class="p-6 md:p-10 fade-in">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">Welcome, Student!</h2>
+                    <p class="text-slate-600">Please enter your details before starting the learning session.</p>
+                </div>
+                
+                <form id="student-form" onsubmit="event.preventDefault(); startLearning();" class="max-w-md mx-auto space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                        <input type="text" id="student-name" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="e.g. Ahmad bin Ali">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Registration Number (No Pendaftaran)</label>
+                        <input type="text" id="student-reg" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="e.g. 01DKM21F1001">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Class</label>
+                        <input type="text" id="student-class" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="e.g. DKM3A">
+                    </div>
+                    <button type="submit" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg shadow-md transition-all transform hover:scale-[1.02]">
+                        Start Learning
+                    </button>
+                </form>
+            </div>
+
+            <!-- Section: Notes (Flashcards) -->
+            <div id="notes-section" class="hidden p-6 md:p-8 fade-in">
+                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                    <h2 class="text-xl font-semibold text-blue-700">Quick Notes: Rankine Cycle Components</h2>
+                    <span id="display-student-info" class="text-sm text-slate-500 font-medium"></span>
+                </div>
+                <p class="mb-6 text-slate-600 leading-relaxed">
+                    Click on the cards to flip them. Understand the function of the four main components of the <strong>Ideal Rankine Cycle</strong> before taking the quiz.
+                </p>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    
+                    <!-- Flashcard 1: Pump -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                                    <svg class="w-8 h-8 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="9" stroke-width="2"></circle>
+                                        <path d="M12 7l5 8H7l5-8z" stroke-width="2" stroke-linejoin="round" fill="currentColor"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-xl">1. Pump</h3>
+                                <p class="text-xs text-slate-400 mt-2">(Click to flip)</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h3 class="font-bold text-blue-900 text-lg mb-2">Pump</h3>
+                                <p class="text-blue-800 text-sm font-medium leading-relaxed">
+                                    Increases the feedwater pressure before it is pumped into the Boiler.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard 2: Boiler -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                                    <svg class="w-8 h-8 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <rect x="5" y="4" width="14" height="12" rx="2" stroke-width="2"></rect>
+                                        <path d="M8 20s1-1.5 1-2.5M12 20s1-1.5 1-2.5M16 20s1-1.5 1-2.5" stroke-width="2" stroke-linecap="round"></path>
+                                        <path d="M8 4v-2M12 4v-2M16 4v-2" stroke-width="2" stroke-linecap="round"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-xl">2. Boiler</h3>
+                                <p class="text-xs text-slate-400 mt-2">(Click to flip)</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h3 class="font-bold text-red-900 text-lg mb-2">Boiler</h3>
+                                <p class="text-red-800 text-sm font-medium leading-relaxed">
+                                    Adds heat to the working fluid to convert the liquid into high-pressure steam.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard 3: Turbine -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                                    <svg class="w-8 h-8 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path d="M6 7l12-4v18L6 17V7z" stroke-width="2" stroke-linejoin="round"></path>
+                                        <path d="M20 12h2M2 12h4" stroke-width="2" stroke-linecap="round"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-xl">3. Turbine</h3>
+                                <p class="text-xs text-slate-400 mt-2">(Click to flip)</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h3 class="font-bold text-amber-900 text-lg mb-2">Turbine</h3>
+                                <p class="text-amber-800 text-sm font-medium leading-relaxed">
+                                    The steam expands and rotates the turbine blades, producing <strong>shaft work</strong>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard 4: Condenser -->
+                    <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                        <div class="flip-card-inner">
+                            <div class="flip-card-front">
+                                <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
+                                    <svg class="w-8 h-8 text-teal-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <rect x="3" y="6" width="18" height="12" rx="2" stroke-width="2"></rect>
+                                        <path d="M3 10h4l2 4 4-4 4 4h4" stroke-width="2" stroke-linejoin="round"></path>
+                                        <path d="M12 22v-4M12 6V2" stroke-width="2" stroke-linecap="round"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-xl">4. Condenser</h3>
+                                <p class="text-xs text-slate-400 mt-2">(Click to flip)</p>
+                            </div>
+                            <div class="flip-card-back">
+                                <h3 class="font-bold text-teal-900 text-lg mb-2">Condenser</h3>
+                                <p class="text-teal-800 text-sm font-medium leading-relaxed">
+                                    Rejects heat to the surroundings and condenses the steam back into liquid water.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-8 text-center flex items-center justify-center space-x-2">
+                    <span class="text-sm font-bold text-slate-700">Ideal Cycle Sequence:</span>
+                    <span class="text-blue-700 font-medium bg-blue-50 px-3 py-1 rounded-full border border-blue-200 text-sm">
+                        Pump &rarr; Boiler &rarr; Turbine &rarr; Condenser &rarr; Pump
+                    </span>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="startQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-full shadow-md transition-all transform hover:scale-105">
+                        Start Interactive Quiz
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section: Quiz -->
+            <div id="quiz-section" class="hidden p-6 md:p-8 fade-in flex flex-col h-full">
+                <!-- Progress Indicator -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-sm font-medium text-slate-500" id="question-progress-text">Question 1 of 5</span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-2">
+                        <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                    </div>
+                </div>
+
+                <!-- Question -->
+                <h3 id="question-text" class="text-lg md:text-xl font-semibold text-slate-800 mb-6">
+                    <!-- Question goes here -->
+                </h3>
+
+                <!-- Options -->
+                <div id="options-container" class="space-y-3 mb-6">
+                    <!-- Options go here dynamically -->
+                </div>
+
+                <!-- Feedback Area -->
+                <div id="feedback-area" class="hidden p-4 rounded-xl mb-6 text-sm font-medium border">
+                    <!-- Feedback goes here -->
+                </div>
+
+                <!-- Action Button -->
+                <div class="mt-auto text-right">
+                    <button id="next-btn" onclick="handleNext()" class="hidden bg-slate-800 hover:bg-slate-900 text-white font-medium py-2.5 px-6 rounded-lg transition-colors">
+                        Next Question
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section: Results & Certificate -->
+            <div id="result-section" class="hidden p-6 md:p-10 fade-in">
+                
+                <!-- Digital Certificate -->
+                <div class="certificate-container mb-8 max-w-2xl mx-auto shadow-xl">
+                    <div class="certificate-inner text-center">
+                        <h2 class="text-3xl md:text-4xl font-serif font-bold text-blue-900 mb-2">Certificate of Mastery</h2>
+                        <p class="text-slate-600 font-medium mb-6 uppercase tracking-widest text-xs">Basic Rankine Cycle Module</p>
+                        
+                        <p class="text-sm text-slate-500 mb-1">This is to certify that</p>
+                        <h3 id="cert-name" class="text-2xl font-bold text-slate-800 mb-1 border-b-2 border-slate-200 inline-block px-8 pb-1">Student Name</h3>
+                        
+                        <div class="flex justify-center space-x-6 text-sm text-slate-600 mt-2 mb-6">
+                            <p><strong>Reg No:</strong> <span id="cert-reg">000</span></p>
+                            <p><strong>Class:</strong> <span id="cert-class">000</span></p>
+                        </div>
+                        
+                        <p class="text-sm text-slate-500 mb-2">has successfully completed the assessment with a score of</p>
+                        <div class="text-4xl font-bold text-blue-600 mb-2" id="final-score-text">
+                            0/5
+                        </div>
+                        <p id="cert-grade" class="text-lg font-bold text-green-600 mb-6 py-1 px-4 bg-green-50 rounded-full inline-block border border-green-200">
+                            Excellent!
+                        </p>
+
+                        <div class="mt-4 flex justify-between items-end text-xs text-slate-400">
+                            <div>Date: <span id="cert-date"></span></div>
+                            <div>Politeknik Port Dickson</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="text-center space-y-4 md:space-y-0 md:space-x-2 flex flex-col md:flex-row justify-center items-center">
+                    <button onclick="downloadCertificate()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-8 rounded-full shadow-md transition-all flex items-center justify-center md:inline-flex">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download PDF
+                    </button>
+                    <button onclick="saveToGoogleSheets()" id="save-btn" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-8 rounded-full shadow-md transition-all flex items-center justify-center md:inline-flex">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        Save Data to System
+                    </button>
+                    <button onclick="resetApp()" class="w-full md:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-3 px-8 rounded-full transition-all md:inline-flex">
+                        Try Again
+                    </button>
+                </div>
+                <p id="save-status" class="text-center text-sm font-medium mt-4 hidden"></p>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Student Data Object
+        let studentProfile = {
+            name: '',
+            regNo: '',
+            studentClass: ''
+        };
+
+        // Quiz Data based on Validated Content (Translated to simple English)
+        const quizData = [
+            {
+                question: "What is the main function of the <strong>Pump</strong> in a Rankine Cycle?",
+                options: [
+                    "Produces shaft work",
+                    "Increases feedwater pressure",
+                    "Rejects heat from the system",
+                    "Adds heat to the liquid"
+                ],
+                correctIndex: 1,
+                explanation: "Correct! The <strong>Pump</strong> functions to increase the pressure of the feedwater before it enters the Boiler."
+            },
+            {
+                question: "In the Rankine Cycle, what is the role of the <strong>Boiler</strong>?",
+                options: [
+                    "Adds heat to produce high-pressure steam",
+                    "Condenses steam back into liquid",
+                    "Generates electricity directly",
+                    "Reduces the system pressure"
+                ],
+                correctIndex: 0,
+                explanation: "Right! The <strong>Boiler</strong> adds heat to the working fluid, converting it into hot steam."
+            },
+            {
+                question: "Which component specifically functions to produce <strong>shaft work</strong>?",
+                options: [
+                    "Pump",
+                    "Condenser",
+                    "Turbine",
+                    "Boiler"
+                ],
+                correctIndex: 2,
+                explanation: "Spot on! The <strong>Turbine</strong> produces <em>shaft work</em> when the steam expands through its blades."
+            },
+            {
+                question: "What process occurs inside the <strong>Condenser</strong>?",
+                options: [
+                    "Drastically increases liquid pressure",
+                    "Mixes fuel with steam",
+                    "Rejects heat and condenses the steam",
+                    "Heats up the feedwater again"
+                ],
+                correctIndex: 2,
+                explanation: "Correct answer! The <strong>Condenser</strong> rejects heat from the steam, condensing it back into water."
+            },
+            {
+                question: "What is the correct ideal cycle sequence for the Rankine Cycle?",
+                options: [
+                    "Pump &rarr; Boiler &rarr; Turbine &rarr; Condenser &rarr; Pump",
+                    "Boiler &rarr; Turbine &rarr; Pump &rarr; Condenser &rarr; Boiler",
+                    "Turbine &rarr; Condenser &rarr; Pump &rarr; Boiler &rarr; Turbine",
+                    "Condenser &rarr; Pump &rarr; Turbine &rarr; Boiler &rarr; Condenser"
+                ],
+                correctIndex: 0,
+                explanation: "Perfect! The ideal sequence starts with the <strong>Pump</strong>, then <strong>Boiler</strong>, followed by the <strong>Turbine</strong>, and ends with the <strong>Condenser</strong>."
+            }
+        ];
+
+        // State variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answeredCurrent = false;
+
+        // DOM Elements
+        const registrationSection = document.getElementById('registration-section');
+        const notesSection = document.getElementById('notes-section');
+        const quizSection = document.getElementById('quiz-section');
+        const resultSection = document.getElementById('result-section');
+        
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackArea = document.getElementById('feedback-area');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('question-progress-text');
+        
+        // Functions
+        function startLearning() {
+            // Get student info
+            studentProfile.name = document.getElementById('student-name').value.trim();
+            studentProfile.regNo = document.getElementById('student-reg').value.trim();
+            studentProfile.studentClass = document.getElementById('student-class').value.trim();
+
+            if(studentProfile.name && studentProfile.regNo && studentProfile.studentClass) {
+                document.getElementById('display-student-info').innerText = `${studentProfile.name} (${studentProfile.studentClass})`;
+                
+                registrationSection.classList.add('hidden');
+                notesSection.classList.remove('hidden');
+                quizSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+            }
+        }
+
+        function startQuiz() {
+            notesSection.classList.add('hidden');
+            quizSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answeredCurrent = false;
+            feedbackArea.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+
+            const currentQ = quizData[currentQuestionIndex];
+            questionText.innerHTML = `${currentQuestionIndex + 1}. ${currentQ.question}`;
+            
+            // Update Progress
+            const progressPercent = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressText.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+
+            // Create Option Buttons
+            currentQ.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.innerHTML = option;
+                btn.className = "w-full text-left p-4 rounded-xl border-2 border-slate-200 text-slate-700 font-medium hover:border-blue-400 hover:bg-blue-50 transition-all focus:outline-none";
+                btn.onclick = () => selectAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectAnswer(selectedIndex, btnElement) {
+            if (answeredCurrent) return; // Prevent multiple clicks
+            answeredCurrent = true;
+
+            const currentQ = quizData[currentQuestionIndex];
+            const isCorrect = selectedIndex === currentQ.correctIndex;
+            const allBtns = optionsContainer.querySelectorAll('button');
+
+            // Style buttons based on selection
+            allBtns.forEach((btn, i) => {
+                btn.disabled = true;
+                btn.classList.remove('hover:border-blue-400', 'hover:bg-blue-50', 'cursor-pointer');
+                btn.classList.add('cursor-not-allowed', 'opacity-70');
+                
+                if (i === currentQ.correctIndex) {
+                    // Highlight correct answer
+                    btn.classList.remove('border-slate-200', 'text-slate-700');
+                    btn.classList.add('border-green-500', 'bg-green-50', 'text-green-800', 'opacity-100');
+                } else if (i === selectedIndex && !isCorrect) {
+                    // Highlight wrong answer if selected
+                    btn.classList.remove('border-slate-200', 'text-slate-700');
+                    btn.classList.add('border-red-500', 'bg-red-50', 'text-red-800', 'opacity-100');
+                }
+            });
+
+            if (isCorrect) score++;
+
+            showFeedback(isCorrect, currentQ.explanation);
+            
+            // Show Next Button
+            nextBtn.classList.remove('hidden');
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtn.innerText = "View Results";
+            } else {
+                nextBtn.innerText = "Next Question";
+            }
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            feedbackArea.classList.remove('hidden', 'bg-green-100', 'text-green-800', 'border-green-200', 'bg-red-100', 'text-red-800', 'border-red-200');
+            
+            if (isCorrect) {
+                feedbackArea.classList.add('bg-green-100', 'text-green-800', 'border-green-200');
+                feedbackArea.innerHTML = `<div class="flex items-start"><svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> <div><strong>Correct!</strong><br>${explanation}</div></div>`;
+            } else {
+                feedbackArea.classList.add('bg-red-100', 'text-red-800', 'border-red-200');
+                feedbackArea.innerHTML = `<div class="flex items-start"><svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg> <div><strong>Incorrect.</strong><br>${explanation}</div></div>`;
+            }
+        }
+
+        function handleNext() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizSection.classList.add('hidden');
+            resultSection.classList.remove('hidden');
+            
+            // Populate Certificate
+            document.getElementById('cert-name').innerText = studentProfile.name.toUpperCase();
+            document.getElementById('cert-reg').innerText = studentProfile.regNo.toUpperCase();
+            document.getElementById('cert-class').innerText = studentProfile.studentClass.toUpperCase();
+            document.getElementById('final-score-text').innerText = `${score}/${quizData.length}`;
+            
+            // Current Date
+            const today = new Date();
+            document.getElementById('cert-date').innerText = today.toLocaleDateString('en-MY', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const certGrade = document.getElementById('cert-grade');
+            
+            if (score === quizData.length) {
+                certGrade.innerText = "Level: DISTINCTION";
+                certGrade.className = "text-lg font-bold text-green-700 mb-6 py-1 px-4 bg-green-100 rounded-full inline-block border border-green-300";
+            } else if (score >= 3) {
+                certGrade.innerText = "Level: PASS";
+                certGrade.className = "text-lg font-bold text-blue-700 mb-6 py-1 px-4 bg-blue-100 rounded-full inline-block border border-blue-300";
+            } else {
+                certGrade.innerText = "Level: NEEDS IMPROVEMENT";
+                certGrade.className = "text-lg font-bold text-amber-700 mb-6 py-1 px-4 bg-amber-100 rounded-full inline-block border border-amber-300";
+            }
+            
+            // Set final progress bar to 100%
+            progressBar.style.width = '100%';
+            
+            // Reset save button UI
+            document.getElementById('save-status').classList.add('hidden');
+            document.getElementById('save-btn').disabled = false;
+            document.getElementById('save-btn').innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg> Save Data to System';
+        }
+
+        function resetApp() {
+            // Go back to notes instead of registration to save typing time
+            notesSection.classList.remove('hidden');
+            resultSection.classList.add('hidden');
+            
+            // Reset Flashcards to front
+            const flashcards = document.querySelectorAll('.flip-card');
+            flashcards.forEach(card => card.classList.remove('flipped'));
+        }
+
+        // Simulating Google Sheets saving via Webhook/Apps Script
+        function saveToGoogleSheets() {
+            const btn = document.getElementById('save-btn');
+            const status = document.getElementById('save-status');
+            
+            // UI Loading state
+            btn.disabled = true;
+            btn.innerHTML = 'Saving...';
+            
+            // Prepare Data Payload
+            const dataPayload = {
+                timestamp: new Date().toISOString(),
+                name: studentProfile.name,
+                regNo: studentProfile.regNo,
+                class: studentProfile.studentClass,
+                score: score,
+                total: quizData.length
+            };
+
+            // Pautan Google Apps Script (Webhook) yang telah dikemas kini
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/a/macros/polipd.edu.my/s/AKfycbw6ijy1mPvnEJIS47je9AXJmYElO24h66bQPsqkjwxyWJUBd1SfL6Y-fH-e-VY8qx6e/exec"; 
+
+            if (GOOGLE_SCRIPT_URL === "") {
+                // Simulation mode if no URL is provided
+                setTimeout(() => {
+                    btn.innerHTML = '&#10003; Saved';
+                    btn.classList.replace('bg-green-600', 'bg-slate-500');
+                    status.classList.remove('hidden');
+                    status.classList.add('text-green-600');
+                    status.innerText = "Data saved successfully! (Simulation mode - Add Apps Script URL to save real data)";
+                    console.log("Data ready to be saved:", dataPayload);
+                }, 1500);
+            } else {
+                // Real submission mode
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataPayload)
+                })
+                .then(response => {
+                    btn.innerHTML = '&#10003; Saved';
+                    btn.classList.replace('bg-green-600', 'bg-slate-500');
+                    status.classList.remove('hidden');
+                    status.classList.add('text-green-600');
+                    status.innerText = "Data has been securely saved to Google Sheets.";
+                })
+                .catch(error => {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Try Saving Again';
+                    status.classList.remove('hidden');
+                    status.classList.add('text-red-500');
+                    status.innerText = "Connection error. Please try again.";
+                    console.error('Error!', error.message);
+                });
+            }
+        }
+
+        function downloadCertificate() {
+            const element = document.querySelector('.certificate-container');
+            
+            // Konfigurasi untuk PDF (A4 Landscape)
+            const opt = {
+                margin:       0.5,
+                filename:     `Certificate_Rankine_${studentProfile.regNo}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+            };
+
+            // Hasilkan dan muat turun PDF
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabaran Master Termodinamik: Misi Adiabatik</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; user-select: none; }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+        .shake { animation: shakeAnim 0.4s ease-in-out; }
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .bounce-in { animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- Header / Status Bar -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 px-4 py-3 shadow-md">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-xl shadow-lg">
+                    <i class="fa-solid fa-fire-burner text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-100 leading-tight">Master Termodinamik</h1>
+                    <p class="text-xs text-blue-400 font-semibold">Cabaran Misi Adiabatik ($PV^\gamma = C$)</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div id="stats-bar" class="hidden flex items-center gap-4 text-xs sm:text-sm">
+                <!-- Lives -->
+                <div class="flex items-center gap-1 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-heart text-rose-500"></i>
+                    <span id="lives-count" class="font-bold text-rose-400">3</span>
+                </div>
+                <!-- Score -->
+                <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span id="score-count" class="font-mono font-bold text-amber-300">0</span>
+                </div>
+                <!-- Streak -->
+                <div class="hidden sm:flex items-center gap-1 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
+                    <i class="fa-solid fa-bolt text-cyan-400"></i>
+                    <span id="streak-count" class="font-bold text-cyan-300">0x</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-4xl mx-auto w-full px-4 py-6 flex-grow flex items-center justify-center">
+
+        <!-- SCREEN 1: START SCREEN -->
+        <div id="screen-start" class="w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl text-center space-y-6 bounce-in">
+            <div class="inline-block p-4 rounded-3xl bg-blue-500/10 border border-blue-500/30 text-blue-400 mb-2 pulse-glow">
+                <i class="fa-solid fa-gauge-high text-5xl"></i>
+            </div>
+            
+            <div class="space-y-2">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Misi Cabaran Adiabatik</h2>
+                <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+                    Uji tahap pemahaman anda tentang **Proses Adiabatik ($Q=0$)** & Hukum Pertama Termodinamik menerusi 3 tahap permainan interaktif!
+                </p>
+            </div>
+
+            <!-- Features Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left my-6">
+                <div class="bg-slate-800/60 border border-slate-700/50 p-4 rounded-2xl">
+                    <div class="text-amber-400 font-bold text-sm mb-1"><i class="fa-solid fa-brain mr-1.5"></i> Level 1</div>
+                    <div class="font-semibold text-slate-200 text-sm">Kuiz Konsep Pantas</div>
+                    <div class="text-xs text-slate-400 mt-1">Uji pemahaman $Q=0$, $W$, $\Delta U$ & graf $P-v$.</div>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700/50 p-4 rounded-2xl">
+                    <div class="text-cyan-400 font-bold text-sm mb-1"><i class="fa-solid fa-sliders mr-1.5"></i> Level 2</div>
+                    <div class="font-semibold text-slate-200 text-sm">Makmal Omboh</div>
+                    <div class="text-xs text-slate-400 mt-1">Laraskan kelajuan & penebat untuk capai sasaran.</div>
+                </div>
+                <div class="bg-slate-800/60 border border-slate-700/50 p-4 rounded-2xl">
+                    <div class="text-emerald-400 font-bold text-sm mb-1"><i class="fa-solid fa-magnifying-glass mr-1.5"></i> Level 3</div>
+                    <div class="font-semibold text-slate-200 text-sm">Detektif Aplikasi</div>
+                    <div class="text-xs text-slate-400 mt-1">Padankan contoh situasi mekanikal sebenar.</div>
+                </div>
+            </div>
+
+            <!-- Player Input & Start -->
+            <div class="max-w-md mx-auto space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 text-left mb-1.5 ml-1">Nama Pelajar / ID:</label>
+                    <input type="text" id="player-name" placeholder="Cth: Ahmad (Diploma Mekanikal)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
+                </div>
+                <button onclick="startGame()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg rounded-2xl shadow-xl hover:shadow-blue-500/25 transition duration-200 flex items-center justify-center gap-2">
+                    <span>Mula Cabaran Sekarang</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: LEVEL 1 - CONCEPT QUIZ -->
+        <div id="screen-level1" class="hidden w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <!-- Progress Bar -->
+            <div class="flex items-center justify-between gap-4">
+                <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Level 1: Kuiz Konsep</span>
+                <span id="quiz-progress-text" class="text-xs font-mono text-slate-400">Soalan 1 / 5</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="quiz-progress-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-full w-1/5 transition-all duration-300"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-950/80 border border-slate-800 p-5 sm:p-6 rounded-2xl space-y-3">
+                <h3 id="question-title" class="text-lg sm:text-xl font-bold text-slate-100 leading-snug">
+                    ...
+                </h3>
+                <p id="question-sub" class="text-xs text-slate-400 leading-relaxed"></p>
+            </div>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 gap-3">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Explanation Callout (Hidden by default) -->
+            <div id="explanation-box" class="hidden p-4 rounded-2xl border text-xs sm:text-sm space-y-1">
+                <div id="explanation-status" class="font-bold"></div>
+                <div id="explanation-text" class="text-slate-300"></div>
+            </div>
+
+            <!-- Next Question Button -->
+            <button id="btn-next-question" onclick="nextQuestion()" class="hidden w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
+                <span>Soalan Seterusnya</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- SCREEN 3: LEVEL 2 - PISTON LAB SIMULATOR -->
+        <div id="screen-level2" class="hidden w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider">Level 2: Makmal Omboh Interaktif</span>
+                    <h3 class="text-xl font-bold text-slate-100">Capai Keadaan Adiabatik ($Q = 0$)</h3>
+                </div>
+                <div class="bg-cyan-950 border border-cyan-800 text-cyan-300 text-xs px-3 py-1.5 rounded-xl font-mono">
+                    Sasaran $Q = 0.00 \text{ kJ}$
+                </div>
+            </div>
+
+            <p class="text-xs text-slate-400">
+                Tugasan: Tetapkan **Kelajuan Mampatan** dan **Penebatan Silinder** untuk memampatkan udara supaya haba tidak sempat terlepas ($Q=0$) dan Suhu ($T$) melonjak naik!
+            </p>
+
+            <!-- Simulator Canvas & Controls Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <!-- Canvas Simulation -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center relative overflow-hidden h-[240px]">
+                    <canvas id="simCanvas" width="320" height="200" class="w-full h-full object-contain"></canvas>
+                    
+                    <!-- Realtime Floating Overlay -->
+                    <div class="absolute bottom-2 left-2 right-2 bg-slate-900/90 border border-slate-800 rounded-xl p-2 flex justify-around text-[11px] font-mono">
+                        <div><span class="text-slate-400">T:</span> <span id="sim-t" class="text-rose-400 font-bold">300 K</span></div>
+                        <div><span class="text-slate-400">P:</span> <span id="sim-p" class="text-amber-400 font-bold">100 kPa</span></div>
+                        <div><span class="text-slate-400">Q:</span> <span id="sim-q" class="text-blue-400 font-bold">0.00 kJ</span></div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="space-y-4">
+                    <!-- Control 1: Speed -->
+                    <div class="space-y-1.5">
+                        <label class="flex justify-between text-xs font-semibold text-slate-300">
+                            <span>Kelajuan Mampatan:</span>
+                            <span id="speed-label" class="text-cyan-400 font-bold">Sangat Perlahan</span>
+                        </label>
+                        <input type="range" id="sim-speed" min="1" max="3" value="1" oninput="updateLabControls()" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                    </div>
+
+                    <!-- Control 2: Insulation -->
+                    <div class="space-y-1.5">
+                        <label class="flex justify-between text-xs font-semibold text-slate-300">
+                            <span>Jenis Penebat Dinding:</span>
+                            <span id="insulation-label" class="text-amber-400 font-bold">Bocor Haba (Dinding Nipis)</span>
+                        </label>
+                        <select id="sim-insulation" onchange="updateLabControls()" class="w-full bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-xl p-2.5 focus:ring-2 focus:ring-cyan-500">
+                            <option value="0">Tiada Penebat (Keluli Biasa)</option>
+                            <option value="1">Penebat Terbebat Sempurna (Perfect Insulation)</option>
+                        </select>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button onclick="runLabTest()" id="btn-run-lab" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i>
+                        <span>Jalankan Mampatan Omboh</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Feedback Result -->
+            <div id="lab-feedback" class="hidden p-4 rounded-2xl border text-xs sm:text-sm space-y-2"></div>
+        </div>
+
+        <!-- SCREEN 4: LEVEL 3 - SCENARIO MATCHING -->
+        <div id="screen-level3" class="hidden w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Level 3: Detektif Termodinamik</span>
+                    <h3 class="text-xl font-bold text-slate-100">Padankan Situasi Sebenar</h3>
+                </div>
+                <span id="match-count" class="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-800 px-3 py-1 rounded-xl">0 / 3 Padanan</span>
+            </div>
+
+            <p class="text-xs text-slate-400">
+                Pilih jenis proses yang betul bagi setiap aplikasi mekanikal di bawah berdasarkan prinsip pemindahan haba dan kelajuan pergerakan.
+            </p>
+
+            <div id="matching-cards-container" class="space-y-4">
+                <!-- Dynamically populated -->
+            </div>
+
+            <button id="btn-finish-level3" onclick="showResults()" class="hidden w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-lg rounded-2xl shadow-xl transition flex items-center justify-center gap-2">
+                <span>Lihat Kad Laporan Keputusan</span>
+                <i class="fa-solid fa-award"></i>
+            </button>
+        </div>
+
+        <!-- SCREEN 5: FINAL RESULTS -->
+        <div id="screen-results" class="hidden w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl text-center space-y-6 bounce-in">
+            <div class="inline-block p-4 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-400 mb-1">
+                <i class="fa-solid fa-trophy text-5xl"></i>
+            </div>
+
+            <div>
+                <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Tahniah! Misi Selesai</span>
+                <h2 id="final-player-title" class="text-3xl font-extrabold text-white mt-1">Master Termodinamik</h2>
+            </div>
+
+            <!-- Score Cards Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
+                    <div class="text-xs text-slate-400">Jumlah Skor:</div>
+                    <div id="final-score" class="text-2xl font-black font-mono text-amber-400">0</div>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 p-4 rounded-2xl">
+                    <div class="text-xs text-slate-400">Gred Ketepatan:</div>
+                    <div id="final-grade" class="text-2xl font-black text-emerald-400">A+</div>
+                </div>
+                <div class="col-span-2 sm:col-span-1 bg-slate-950 border border-slate-800 p-4 rounded-2xl">
+                    <div class="text-xs text-slate-400">Penguasaan Konsep:</div>
+                    <div id="final-mastery" class="text-sm font-bold text-blue-400 mt-1">Cemerlang</div>
+                </div>
+            </div>
+
+            <!-- Teacher Summary Box -->
+            <div class="bg-slate-950/80 border border-slate-800 text-left p-4 rounded-2xl space-y-2 text-xs text-slate-300">
+                <div class="font-bold text-blue-400 flex items-center gap-1.5 text-sm">
+                    <i class="fa-solid fa-graduation-cap"></i> Ulasan Pengukuhan Topik Adiabatik:
+                </div>
+                <p id="final-feedback-text" class="leading-relaxed">
+                    ...
+                </p>
+            </div>
+
+            <button onclick="restartGame()" class="w-full py-4 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-base rounded-2xl transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Main Semula Cabaran</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 py-3 text-center text-xs text-slate-500">
+        Modul Interaktif Termodinamik • Khusus Pelajar Diploma Kejuruteraan Mekanikal
+    </footer>
+
+    <script>
+        let playerName = "Pelajar";
+        let score = 0;
+        let lives = 3;
+        let streak = 0;
+        let currentLevel = 1;
+        let currentQuizIndex = 0;
+
+        // Quiz Questions Data (Level 1)
+        const quizData = [
+            {
+                title: "Apakah nilai pemindahan haba (Q) untuk proses Adiabatik?",
+                sub: "Fikirkan ciri utama silinder yang terbebat sempurna atau proses yang berlaku pantas.",
+                options: [
+                    { text: "Q = 0 (Tiada haba masuk atau keluar)", correct: true },
+                    { text: "Q > 0 (Haba sentiasa bertambah)", correct: false },
+                    { text: "Q = W (Haba sama dengan kerja)", correct: false },
+                    { text: "Q = ΔU (Tiada kerja dilakukan)", correct: false }
+                ],
+                explanation: "Tepat! Bagi proses Adiabatik, sistem adalah terbebat sempurna atau berlaku terlalu pantas sehingga Q = 0."
+            },
+            {
+                title: "Apabila udara dimampatkan secara Adiabatik dengan pantas, apakah yang berlaku pada Suhu (T)?",
+                sub: "Gunakan Hukum Pertama: Q = ΔU + W (dengan Q = 0, maka ΔU = -W).",
+                options: [
+                    { text: "Suhu meningkat naik secara mendadak", correct: true },
+                    { text: "Suhu kekal konstan", correct: false },
+                    { text: "Suhu menurun menjadi sejuk", correct: false },
+                    { text: "Suhu menjadi sifar", correct: false }
+                ],
+                explanation: "Syabas! Kerana Q = 0, kerja mampatan (W negatif) dimasukkan terus menaikkan Tenaga Dalaman (ΔU positif), menyebabkan suhu T melonjak naik."
+            },
+            {
+                title: "Antara berikut, graf P-v yang manakah mempunyai kecuraman PALING TINGGI?",
+                sub: "Bandingkan indeks n: Isotermal (n=1.0), Politropik (n=1.2), Adiabatik (n=1.4).",
+                options: [
+                    { text: "Adiabatik (n = 1.4)", correct: true },
+                    { text: "Isotermal (n = 1.0)", correct: false },
+                    { text: "Isobarik (n = 0)", correct: false },
+                    { text: "Politropik (n = 1.2)", correct: false }
+                ],
+                explanation: "Betul! Garis Adiabatik paling curam kerana nilai indeks n = γ = 1.4 adalah paling besar berbanding isotermal (n=1.0)."
+            },
+            {
+                title: "Kenapa bahagian bawah pam basikal menjadi panas selepas anda memampatkannya dengan laju?",
+                sub: "Adakah haba dimasukkan dari luar atau kesan mampatan kerja?",
+                options: [
+                    { text: "Kerja mampatan ditukar menjadi Tenaga Dalaman (ΔU)", correct: true },
+                    { text: "Geseran tangan anda menyerap haba persekitaran", correct: false },
+                    { text: "Udara luar yang masuk bertukar menjadi haba", correct: false },
+                    { text: "Isipadu udara bertambah besar", correct: false }
+                ],
+                explanation: "Tepat sekali! Mampatan pantas adalah proses Adiabatik. Kerja tangan anda bertukar terus kepada tenaga zarah (suhu naik)."
+            },
+            {
+                title: "Apakah perbezaan utama antara Proses Adiabatik dan Politropik?",
+                sub: "Pertimbangkan keadaan ideal vs dunia sebenar.",
+                options: [
+                    { text: "Adiabatik tiada haba bocor (Q=0), Politropik ada sedikit haba bocor", correct: true },
+                    { text: "Adiabatik berlaku sangat perlahan, Politropik sangat laju", correct: false },
+                    { text: "Adiabatik mempunyai suhu malar", correct: false },
+                    { text: "Politropik tidak mengikut Hukum Pertama Termodinamik", correct: false }
+                ],
+                explanation: "Cemerlang! Politropik (1 < n < γ) ialah proses dunia sebenar di mana ada sedikit pemindahan haba dan geseran."
+            }
+        ];
+
+        // Scenario Matching Data (Level 3)
+        const scenarioData = [
+            {
+                id: 1,
+                title: "Langkah Mampatan Pantas Dalam Enjin Kereta (ICE)",
+                desc: "Berlaku dalam masa beberapa milisaat sebelum palam pencucuh menyala.",
+                correct: "adiabatik",
+                options: [
+                    { label: "Adiabatik (Mampatan Sangat Pantas, Q=0)", val: "adiabatik" },
+                    { label: "Isotermal (Suhu Kekal Sama)", val: "isotermal" },
+                    { label: "Isokorik (Isipadu Malar)", val: "isokorik" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Pemampatan Udara Sebenar Dalam Pemampat Industri",
+                desc: "Pergerakan omboh sederhana dengan sedikit pemindahan haba ke dinding silinder.",
+                correct: "politropik",
+                options: [
+                    { label: "Politropik (Dunia Sebenar, 1 < n < γ)", val: "politropik" },
+                    { label: "Adiabatik Terbebat Sempurna", val: "adiabatik" },
+                    { label: "Isobarik (Tekanan Malar)", val: "isobarik" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Pemanasan Udara Dalam Tangki Keluli Tebal Tegar",
+                desc: "Dinding tangki keluli tebal tidak boleh mengembang atau menguncup.",
+                correct: "isokorik",
+                options: [
+                    { label: "Isokorik / Isovolumetrik (V = Malar, W = 0)", val: "isokorik" },
+                    { label: "Adiabatik", val: "adiabatik" },
+                    { label: "Isobarik", val: "isobarik" }
+                ]
+            }
+        ];
+
+        let matchedScenarios = {};
+
+        // Simple Sound FX using Web Audio API (No external sound files required)
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            try {
+                if(!audioCtx) audioCtx = new AudioCtx();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if(type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.15); // E5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if(type === 'wrong') {
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                    osc.frequency.setValueAtTime(174.61, audioCtx.currentTime + 0.1); // F3
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if(type === 'click') {
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch(e) { /* Ignore audio errors if blocked */ }
+        }
+
+        function startGame() {
+            playSound('click');
+            const nameInput = document.getElementById('player-name').value.trim();
+            if(nameInput) playerName = nameInput;
+
+            score = 0;
+            lives = 3;
+            streak = 0;
+            currentQuizIndex = 0;
+
+            updateStatsUI();
+
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('stats-bar').classList.remove('hidden');
+            document.getElementById('screen-level1').classList.remove('hidden');
+
+            loadQuizQuestion();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('lives-count').textContent = lives;
+            document.getElementById('score-count').textContent = score;
+            document.getElementById('streak-count').textContent = streak + 'x';
+        }
+
+        function loadQuizQuestion() {
+            const q = quizData[currentQuizIndex];
+            document.getElementById('quiz-progress-text').textContent = `Soalan ${currentQuizIndex + 1} / ${quizData.length}`;
+            document.getElementById('quiz-progress-bar').style.width = `${((currentQuizIndex + 1) / quizData.length) * 100}%`;
+
+            document.getElementById('question-title').textContent = q.title;
+            document.getElementById('question-sub').textContent = q.sub;
+
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            document.getElementById('explanation-box').classList.add('hidden');
+            document.getElementById('btn-next-question').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "quiz-opt-btn w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950 hover:border-blue-500/50 hover:bg-slate-900 transition text-sm font-medium flex items-center justify-between group";
+                btn.onclick = () => selectQuizAnswer(idx);
+                btn.innerHTML = `
+                    <span>${opt.text}</span>
+                    <i class="fa-regular fa-circle text-slate-600 group-hover:text-blue-400"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(optIndex) {
+            const q = quizData[currentQuizIndex];
+            const selectedOpt = q.options[optIndex];
+            const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+            // Disable all buttons after click
+            buttons.forEach(b => b.onclick = null);
+
+            const expBox = document.getElementById('explanation-box');
+            const expStatus = document.getElementById('explanation-status');
+            const expText = document.getElementById('explanation-text');
+
+            expBox.classList.remove('hidden');
+
+            if(selectedOpt.correct) {
+                playSound('correct');
+                score += 100 + (streak * 20);
+                streak++;
+                buttons[optIndex].className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-950/40 text-emerald-200 text-sm font-medium flex items-center justify-between";
+                buttons[optIndex].querySelector('i').className = "fa-solid fa-circle-check text-emerald-400";
+
+                expBox.className = "p-4 rounded-2xl border border-emerald-500/40 bg-emerald-950/30 text-xs sm:text-sm space-y-1";
+                expStatus.className = "font-bold text-emerald-400";
+                expStatus.innerHTML = "<i class='fa-solid fa-check-circle mr-1'></i> Jawapan Tepat!";
+            } else {
+                playSound('wrong');
+                lives--;
+                streak = 0;
+                buttons[optIndex].className = "w-full text-left p-4 rounded-xl border-2 border-rose-500 bg-rose-950/40 text-rose-200 text-sm font-medium flex items-center justify-between shake";
+                buttons[optIndex].querySelector('i').className = "fa-solid fa-circle-xmark text-rose-400";
+
+                // Highlight correct one
+                q.options.forEach((o, i) => {
+                    if(o.correct) {
+                        buttons[i].className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500/50 bg-emerald-950/20 text-emerald-300 text-sm font-medium flex items-center justify-between";
+                    }
+                });
+
+                expBox.className = "p-4 rounded-2xl border border-rose-500/40 bg-rose-950/30 text-xs sm:text-sm space-y-1";
+                expStatus.className = "font-bold text-rose-400";
+                expStatus.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-1'></i> Kurang Tepat!";
+            }
+
+            expText.textContent = q.explanation;
+            updateStatsUI();
+
+            if(lives <= 0) {
+                setTimeout(() => {
+                    alert("Nyawa anda telah habis! Jangan risau, mari kita teruskan ke Level 2 untuk latihan amali.");
+                    startLevel2();
+                }, 1500);
+            } else {
+                document.getElementById('btn-next-question').classList.remove('hidden');
+            }
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQuizIndex++;
+            if(currentQuizIndex < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                startLevel2();
+            }
+        }
+
+        function startLevel2() {
+            document.getElementById('screen-level1').classList.add('hidden');
+            document.getElementById('screen-level2').classList.remove('hidden');
+            initLabCanvas();
+            updateLabControls();
+        }
+
+        function updateLabControls() {
+            const speedVal = parseInt(document.getElementById('sim-speed').value);
+            const insVal = parseInt(document.getElementById('sim-insulation').value);
+
+            const speedLabel = document.getElementById('speed-label');
+            if(speedVal === 1) speedLabel.textContent = "Sangat Perlahan";
+            else if(speedVal === 2) speedLabel.textContent = "Sederhana";
+            else speedLabel.textContent = "Sangat Pantas (Pantas!)";
+
+            const insLabel = document.getElementById('insulation-label');
+            if(insVal === 0) insLabel.textContent = "Bocor Haba (Keluli Biasa)";
+            else insLabel.textContent = "Terbebat Sempurna (Perfect Insulation)";
+
+            drawLabCanvas(0, 300, 100, 0);
+        }
+
+        function drawLabCanvas(progress, T, P, Q) {
+            const canvas = document.getElementById('simCanvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Cylinder
+            const cylX = 40;
+            const cylY = 30;
+            const cylW = 240;
+            const cylH = 120;
+
+            const pistonMinX = cylX + 50;
+            const pistonMaxX = cylX + cylW - 20;
+            const pistonX = pistonMaxX - progress * (pistonMaxX - pistonMinX);
+
+            // Draw Insulation Border
+            const insVal = parseInt(document.getElementById('sim-insulation').value);
+            ctx.fillStyle = insVal === 1 ? '#1e3a8a' : '#334155';
+            ctx.fillRect(cylX - 8, cylY - 8, cylW + 16, cylH + 16);
+
+            // Draw Chamber Gas (Glows redder when T increases)
+            const redGlow = Math.min(255, Math.max(0, (T - 300) * 1.2));
+            ctx.fillStyle = `rgb(${15 + redGlow}, 23, 42)`;
+            ctx.fillRect(cylX, cylY, pistonX - cylX, cylH);
+
+            // Particles
+            ctx.fillStyle = '#38bdf8';
+            for(let i = 0; i < 20; i++) {
+                const px = cylX + 10 + (Math.sin(i * 99 + progress * 10) * 0.5 + 0.5) * (pistonX - cylX - 20);
+                const py = cylY + 10 + (Math.cos(i * 33 + progress * 10) * 0.5 + 0.5) * (cylH - 20);
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Piston Head
+            ctx.fillStyle = '#94a3b8';
+            ctx.fillRect(pistonX, cylY, 16, cylH);
+
+            // Piston Rod
+            ctx.fillStyle = '#cbd5e1';
+            ctx.fillRect(pistonX + 16, cylY + cylH / 2 - 8, 80, 16);
+
+            // Cylinder Frame
+            ctx.strokeStyle = '#f8fafc';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(cylX + cylW, cylY);
+            ctx.lineTo(cylX, cylY);
+            ctx.lineTo(cylX, cylY + cylH);
+            ctx.lineTo(cylX + cylW, cylY + cylH);
+            ctx.stroke();
+
+            // Overlay values
+            document.getElementById('sim-t').textContent = T.toFixed(0) + ' K';
+            document.getElementById('sim-p').textContent = P.toFixed(0) + ' kPa';
+            document.getElementById('sim-q').textContent = Q.toFixed(2) + ' kJ';
+        }
+
+        function initLabCanvas() {
+            drawLabCanvas(0, 300, 100, 0);
+        }
+
+        function runLabTest() {
+            playSound('click');
+            const speedVal = parseInt(document.getElementById('sim-speed').value);
+            const insVal = parseInt(document.getElementById('sim-insulation').value);
+
+            const btn = document.getElementById('btn-run-lab');
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 0.05;
+
+                // Physics logic:
+                // If speed is fast (speedVal=3) OR insulation is perfect (insVal=1) -> Q approaches 0 (Adiabatic)
+                let Q = 0;
+                let T = 300 + progress * 220;
+                let P = 100 + progress * 350;
+
+                if(speedVal < 3 && insVal === 0) {
+                    // Heat leaks out!
+                    Q = - (3 - speedVal) * progress * 25.5;
+                    T = 300 + progress * 60; // Doesn't heat up as much
+                } else {
+                    Q = 0.00; // Strictly adiabatic
+                }
+
+                drawLabCanvas(progress, T, P, Q);
+
+                if(progress >= 1) {
+                    clearInterval(interval);
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    evaluateLabResult(speedVal, insVal, Q);
+                }
+            }, 50);
+        }
+
+        function evaluateLabResult(speedVal, insVal, Q) {
+            const feedback = document.getElementById('lab-feedback');
+            feedback.classList.remove('hidden');
+
+            const isAdiabatic = (insVal === 1) || (speedVal === 3);
+
+            if(isAdiabatic) {
+                playSound('correct');
+                score += 250;
+                feedback.className = "p-4 rounded-2xl border border-emerald-500/40 bg-emerald-950/40 text-xs sm:text-sm space-y-2";
+                feedback.innerHTML = `
+                    <div class="font-bold text-emerald-400 text-base"><i class="fa-solid fa-circle-check mr-1"></i> TAHSIAH! Syarat Adiabatik Dipenuhi!</div>
+                    <p class="text-slate-200 leading-relaxed">
+                        Nilai pemindahan haba anda ialah <strong>Q = 0.00 kJ</strong>. Kerana mampatan berlaku sangat pantas atau terbebat sempurna, tiada haba sempat keluar. Suhu T melonjak tinggi!
+                    </p>
+                    <button onclick="startLevel3()" class="mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition">
+                        Teruskan ke Level 3 <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                `;
+            } else {
+                playSound('wrong');
+                feedback.className = "p-4 rounded-2xl border border-amber-500/40 bg-amber-950/40 text-xs sm:text-sm space-y-2";
+                feedback.innerHTML = `
+                    <div class="font-bold text-amber-400 text-base"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Belum Adiabatik (Ada Haba Bocor Q < 0)!</div>
+                    <p class="text-slate-200 leading-relaxed">
+                        Kerana mampatan terlalu perlahan dan dinding tiada penebat, haba sempat memancar keluar (${Q.toFixed(2)} kJ). Ini dinamakan <strong>Proses Politropik</strong>.
+                    </p>
+                    <p class="text-amber-300 font-semibold">
+                        Petunjuk: Tukar kelajuan kepada <strong>"Sangat Pantas"</strong> ATAU pilih penebat <strong>"Terbebat Sempurna"</strong>!
+                    </p>
+                `;
+            }
+            updateStatsUI();
+        }
+
+        function startLevel3() {
+            playSound('click');
+            document.getElementById('screen-level2').classList.add('hidden');
+            document.getElementById('screen-level3').classList.remove('hidden');
+
+            const container = document.getElementById('matching-cards-container');
+            container.innerHTML = '';
+
+            scenarioData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-3";
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-slate-100 text-base">${item.title}</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">${item.desc}</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">Pilih Jenis Proses:</label>
+                        <select onchange="selectScenarioMatch(${item.id}, this.value)" class="w-full bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-emerald-500">
+                            <option value="">-- Pilih Proses --</option>
+                            ${item.options.map(o => `<option value="${o.val}">${o.label}</option>`).join('')}
+                        </select>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectScenarioMatch(id, value) {
+            if(!value) return;
+            matchedScenarios[id] = value;
+
+            const count = Object.keys(matchedScenarios).length;
+            document.getElementById('match-count').textContent = `${count} / ${scenarioData.length} Padanan`;
+
+            if(count === scenarioData.length) {
+                document.getElementById('btn-finish-level3').classList.remove('hidden');
+            }
+        }
+
+        function showResults() {
+            playSound('click');
+
+            // Calculate final scenario score
+            let correctCount = 0;
+            scenarioData.forEach(item => {
+                if(matchedScenarios[item.id] === item.correct) {
+                    correctCount++;
+                }
+            });
+
+            score += correctCount * 150;
+
+            document.getElementById('screen-level3').classList.add('hidden');
+            document.getElementById('screen-results').classList.remove('hidden');
+
+            document.getElementById('final-score').textContent = score;
+
+            let grade = "A+";
+            let mastery = "Cemerlang (Pakar Adiabatik)";
+            let feedback = `Syabas <strong>${playerName}</strong>! Anda menunjukkan kefahaman yang sangat tinggi tentang Proses Adiabatik ($Q=0$). Anda faham bahawa mampatan pantas menaikkan suhu $T$ menerusi kerja $W$, dan graf $P-v$ adiabatik adalah paling curam!`;
+
+            if(score < 500) {
+                grade = "C";
+                mastery = "Perlu Pengukuhan";
+                feedback = `Tahniah <strong>${playerName}</strong> kerana menyelesaikan cabaran. Sentiasa ingat formula asas: Bagi proses Adiabatik, pemindahan haba sentiasa <strong>Q = 0</strong>. Kerja mampatan terus ditukarkan menjadi kenaikan tenaga dalaman ($\Delta U$).`;
+            } else if(score < 750) {
+                grade = "B+";
+                mastery = "Baik";
+            }
+
+            document.getElementById('final-grade').textContent = grade;
+            document.getElementById('final-mastery').textContent = mastery;
+            document.getElementById('final-feedback-text').innerHTML = feedback;
+        }
+
+        function restartGame() {
+            playSound('click');
+            document.getElementById('screen-results').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+            document.getElementById('stats-bar').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
