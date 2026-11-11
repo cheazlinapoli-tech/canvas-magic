@@ -29,3 +29,16 @@ document.getElementById('prevSlot').addEventListener('click',()=>selectSlot(Math
 document.getElementById('nextSlot').addEventListener('click',()=>selectSlot(Math.min(slots.length-1,active+1)));
 document.getElementById('startLearningBtn').addEventListener('click',()=>selectSlot(0));
 updatePageControls();
+
+// Refleksi peserta: tampal banyak jawapan, papar sebagai kad, simpan setempat.
+(function(){
+ const input=document.getElementById('bulkReflections'),cards=document.getElementById('reflectionCards'),status=document.getElementById('reflectionStatus');
+ const key='cm_all_participant_reflections_v1';
+ function entries(text){return text.trim().split(/\n\s*\n+/).map(v=>v.trim()).filter(Boolean);}
+ function render(){cards.replaceChildren();const items=entries(input.value);items.forEach((item,i)=>{let name='Peserta '+(i+1),content=item;const m=item.match(/^([^\n:]{1,70}):\s*([\s\S]+)$/);if(m){name=m[1].trim();content=m[2].trim();}const article=document.createElement('article');article.className='reflection-card';const heading=document.createElement('strong');heading.textContent='💬 '+name;const body=document.createElement('p');body.textContent=content;article.append(heading,body);cards.appendChild(article);});status.textContent=items.length?`${items.length} refleksi dipaparkan di bawah.`:'Belum ada refleksi dipaparkan.';try{localStorage.setItem(key,input.value);}catch(e){status.textContent+=' Simpanan setempat tidak tersedia.';}}
+ try{input.value=localStorage.getItem(key)||'';}catch(e){}render();
+ document.getElementById('showReflections').addEventListener('click',()=>{render();cards.scrollIntoView({behavior:'smooth',block:'nearest'});});
+ document.getElementById('copyReflections').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(input.value);status.textContent='Refleksi telah disalin.';}catch(e){input.focus();input.select();status.textContent='Tekan Ctrl+C untuk menyalin teks yang dipilih.';}});
+ document.getElementById('exportReflections').addEventListener('click',()=>{const blob=new Blob([input.value],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='refleksi-peserta-canvas-magic.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+ document.getElementById('clearReflections').addEventListener('click',()=>{if(!input.value||confirm('Kosongkan semua refleksi dalam pelayar ini?')){input.value='';render();}});
+})();
